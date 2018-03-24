@@ -51,14 +51,14 @@ public class MainActivity extends AppCompatActivity {
 
             switch(position) {
                 case 0:
-                    fragment = new PointsFragment();
+                    fragment = PointsFragment.newInstance();
                     break;
                 case 1:
-                    fragment = new CameraFragment();
+                    fragment = PointsFragment.newInstance();
                     break;
-//                case 2:
-//                    fragment = new LocationFragment();
-//                    break;
+                case 2:
+                    fragment = PointsFragment.newInstance();
+                    break;
             }
 
             return fragment;

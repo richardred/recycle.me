@@ -43,7 +43,7 @@ public class CameraFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static CameraFragment newInstance(String param1, String param2) {
+    public static CameraFragment newInstance() {
         CameraFragment fragment = new CameraFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
