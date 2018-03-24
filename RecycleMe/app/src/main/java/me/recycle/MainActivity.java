@@ -1,5 +1,6 @@
 package me.recycle;
 
+import android.location.Location;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.SupportMapFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setCurrentItem(1);
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
@@ -51,13 +54,13 @@ public class MainActivity extends AppCompatActivity {
 
             switch(position) {
                 case 0:
-                    fragment = PointsFragment.newInstance();
+                    fragment = CameraFragment.newInstance();
                     break;
                 case 1:
                     fragment = PointsFragment.newInstance();
                     break;
                 case 2:
-                    fragment = PointsFragment.newInstance();
+                    fragment = LocationFragment.newInstance();
                     break;
             }
 

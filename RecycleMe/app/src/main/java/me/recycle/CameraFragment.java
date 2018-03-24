@@ -30,14 +30,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class CameraFragment extends Fragment {
-    ViewPager viewPager;
     private ImageView imageView;
     private ImageButton imageButton;
     private int imageRequestId = 0;
     private Uri[] imageUris = new Uri[256];
     static final int REQUEST_IMAGE_CAPTURE = 1;
-
-    private OnFragmentInteractionListener mListener;
 
     public CameraFragment() {
         // Required empty public constructor
@@ -51,12 +48,6 @@ public class CameraFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        viewPager = (ViewPager) viewPager.findViewById(R.id.container);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_camera, container, false);
@@ -66,22 +57,6 @@ public class CameraFragment extends Fragment {
 
         return view;
     }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
-
 
     public void onRecycleButtonClick(View v) {
         Log.i("Recycle", "Scanning for recycles");
