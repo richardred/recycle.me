@@ -17,7 +17,7 @@
 
 * [Node.js](https://nodejs.org/en/) - a JavaScript runtime built on [Chrome's V8 JavaScript engine](https://developers.google.com/v8/), specifically the [Express framework](https://expressjs.com/) to create a web server on the Google Cloud server that would handle the front-end application requests.
 
-* [Caddy](https://caddyserver.com/) - a web server and proxy which was used to automatically generate HTTPS certificates for the wiener.world domain/subdomains
+* [Caddy](https://caddyserver.com/) - a web server and proxy which was used to automatically generate HTTPS certificates for the domain
 
 ## Authors
 * **Richard Red** - *TensorFlow neural network training* - [richardred](https://github.com/richardred)
