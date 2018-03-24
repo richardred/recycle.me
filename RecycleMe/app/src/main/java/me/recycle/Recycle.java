@@ -1,13 +1,15 @@
 /**
- * Wiener.java
- * @author Richard Red
+ * Recycle.java
+ * @author Nishant Sinha
  *
  * The front-end Android application that communicates with the cloud-based server
- * to determine whether or not a picture that is taken in the app is a hot dog.
+ * to determine whether or not a picture that is taken in the app recycleable.
+ *
+ * Based off of the code from WienerScreener (wiener.world)
  *
  * This code is awful.
  */
-package sexy.wiener.wienerscreener;
+package me.recycle;
 
  import android.app.Activity;
  import android.content.Intent;
@@ -37,11 +39,11 @@ package sexy.wiener.wienerscreener;
  import java.net.MalformedURLException;
  import java.net.URL;
 
-public class Wiener extends AppCompatActivity {
+public class Recycle extends AppCompatActivity {
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
-     private ImageView wienerView;
+     private ImageView recycleView;
      private int imageRequestId = 0;
 
      private Uri[] imageUris = new Uri[256];
@@ -50,12 +52,12 @@ public class Wiener extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wiener);
-        this.wienerView = (ImageView)this.findViewById(this.getResources().getIdentifier("wienerView", "id", this.getApplicationContext().getPackageName()));
+        setContentView(R.layout.activity_recycle);
+        this.recycleView = (ImageView)this.findViewById(this.getResources().getIdentifier("recycleView", "id", this.getApplicationContext().getPackageName()));
     }
 
-    public void onWienerButtonClick(View v) {
-        Log.i("Wiener", "Scanning for wieners");
+    public void onRecycleButtonClick(View v) {
+        Log.i("Recycle", "Scanning for recycles");
         dispatchTakePictureIntent();
     }
 
@@ -79,14 +81,14 @@ public class Wiener extends AppCompatActivity {
         return out.toByteArray();
     }
 
-    private void detectWiener(Uri wienerUri) throws IOException {
-        InputStream in = new BufferedInputStream(getContentResolver().openInputStream(wienerUri));
+    private void detectRecycle(Uri recycleUri) throws IOException {
+        InputStream in = new BufferedInputStream(getContentResolver().openInputStream(recycleUri));
 
         byte[] inBytes = fullyReadInputStream(in);
 
         in.close();
 
-        URL serverUrl = new URL("http://35.231.68.240/testwiener");
+        URL serverUrl = new URL("http://35.231.68.240/testrecycle");
         HttpURLConnection conn = (HttpURLConnection) serverUrl.openConnection();
         conn.setRequestMethod("POST");
         conn.setRequestProperty("content-type", "application/octet-stream");
@@ -103,37 +105,37 @@ public class Wiener extends AppCompatActivity {
 
         InputStream servIn = new BufferedInputStream(conn.getInputStream());
         final File responseImageFile = makeTempImageFile();
-        OutputStream wienerOut = new BufferedOutputStream(new FileOutputStream(responseImageFile));
+        OutputStream recycleOut = new BufferedOutputStream(new FileOutputStream(responseImageFile));
 
         byte[] buf = new byte[4096];
         int n;
         try {
             while ((n = servIn.read(buf)) > 0) {
-                wienerOut.write(buf, 0, n);
+                recycleOut.write(buf, 0, n);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        wienerOut.flush();
-        wienerOut.close();
+        recycleOut.flush();
+        recycleOut.close();
         conn.disconnect();
 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                wienerView.setImageURI(Uri.fromFile(responseImageFile));
+                recycleView.setImageURI(Uri.fromFile(responseImageFile));
             }
         });
     }
 
      private File makeTempImageFile() throws IOException {
          File out = this.getApplicationContext().getCacheDir();
-         File wienerFolder = new File(out, "wieners");
-         if (!wienerFolder.exists()) {
-             wienerFolder.mkdir();
+         File recycleFolder = new File(out, "recycles");
+         if (!recycleFolder.exists()) {
+             recycleFolder.mkdir();
          }
-         return File.createTempFile("wiener", ".jpg", wienerFolder);
+         return File.createTempFile("recycle", ".jpg", recycleFolder);
      }
 
      private void takePicture(File pic) {
@@ -141,14 +143,14 @@ public class Wiener extends AppCompatActivity {
          if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
              int req = imageRequestId;
              imageRequestId = (imageRequestId + 1) % 256;
-             imageUris[req] = FileProvider.getUriForFile(this, "sexy.wiener.fileprovider", pic);
+             imageUris[req] = FileProvider.getUriForFile(this, "me.recycle.fileprovider", pic);
              takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUris[req]);
              startActivityForResult(takePictureIntent, req | 0x100);
          }
      }
 
      private void setViewPicture(Uri uri) {
-         wienerView.setImageURI(uri);
+         recycleView.setImageURI(uri);
      }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -159,7 +161,7 @@ public class Wiener extends AppCompatActivity {
                 @Override
                 protected Void doInBackground(Void... params) {
                     try {
-                        detectWiener(pic);
+                        detectRecycle(pic);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -167,7 +169,7 @@ public class Wiener extends AppCompatActivity {
                 }
             }).execute();
         } else if (requestCode == REQUEST_IMAGE_CAPTURE){
-            Log.e("Wiener", "ERROR: " + resultCode);
+            Log.e("Recycle", "ERROR: " + resultCode);
         }
     }
 }

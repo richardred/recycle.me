@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/WienerScreener.iml" filepath="$PROJECT_DIR$/WienerScreener.iml" />
+      <module fileurl="file://$PROJECT_DIR$/RecycleMe.iml" filepath="$PROJECT_DIR$/RecycleMe.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
