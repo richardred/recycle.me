@@ -21,9 +21,9 @@
 
 ## Authors
 * **Richard Red** - *TensorFlow neural network training* - [richardred](https://github.com/richardred)
-* **Ben Geier** - *asdf* - [bengeier](https://github.com/bengeier)
-* **Nishant Sinha** - *asdf* - [Nishnha](https://github.com/Nishnha)
-* **Sachin Mahajan** - *yes* - [Vuggo](https://github.com/Vuggo)
+* **Ben Geier** - *Google Maps API implementation* - [bengeier](https://github.com/bengeier)
+* **Nishant Sinha** - *Front-end application work* - [Nishnha](https://github.com/Nishnha)
+* **Sachin Mahajan** - *Tried to SSH to the server* - [Vuggo](https://github.com/Vuggo)
 * **Edward Xia** - *Data collection* - [EdwardXia3](https://github.com/EdwardXia3)
 
 ## License
