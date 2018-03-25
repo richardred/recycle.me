@@ -90,7 +90,13 @@ public class CameraFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     // Calls onPictureTaken callback
-                    mCamera.takePicture(null, null, mPicture);
+                    if (imageView.getVisibility() == View.VISIBLE) {
+                        imageView.setVisibility(View.INVISIBLE);
+                        mCamera.startPreview();
+
+                    } else {
+                        mCamera.takePicture(null, null, mPicture);
+                    }
                 }
             }
         );
@@ -109,7 +115,7 @@ public class CameraFragment extends Fragment {
                 fos.write(data);
                 fos.close();
 
-                Uri img = Uri.fromFile(getActivity().getApplicationContext().getFileStreamPath("recycle.jpg"));
+                Uri img = Uri.fromFile(pictureFile);
                 setViewPicture(img);
 
                 (new AsyncTask<Void, Void, Void>() {
@@ -140,6 +146,7 @@ public class CameraFragment extends Fragment {
     }
 
     private void setViewPicture(Uri uri) {
+        imageView.setVisibility(View.VISIBLE);
         imageView.setImageURI(uri);
     }
 
@@ -157,6 +164,14 @@ public class CameraFragment extends Fragment {
         servOut.write(inBytes);
         servOut.flush();
         servOut.close();
+
+
+        // if backend returns true
+//        if () {
+//            imageButton.setImageResource(R.drawable.ic_recycle_symbol);
+//        } else {
+//            imageButton.setImageResource(R.drawable.ic_trash_symbol);
+//        }
 
         InputStream servIn = new BufferedInputStream(conn.getInputStream());
         final File responseImageFile = makeTempImageFile();
