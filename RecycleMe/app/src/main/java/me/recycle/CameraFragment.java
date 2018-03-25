@@ -2,17 +2,22 @@ package me.recycle;
 
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
@@ -28,6 +33,11 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static android.content.ContentValues.TAG;
+import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
 public class CameraFragment extends Fragment {
     private ImageView imageView;
@@ -35,6 +45,8 @@ public class CameraFragment extends Fragment {
     private int imageRequestId = 0;
     private Uri[] imageUris = new Uri[256];
     static final int REQUEST_IMAGE_CAPTURE = 1;
+    private Camera mCamera;
+    private CameraPreview mPreview;
 
     public CameraFragment() {
         // Required empty public constructor
@@ -47,60 +59,91 @@ public class CameraFragment extends Fragment {
         return fragment;
     }
 
+    public static Camera getCameraInstance(){
+        Camera c = null;
+        try {
+            c = Camera.open(); // attempt to get a Camera instance
+        }
+        catch (Exception e){
+            // Camera is not available (in use or does not exist)
+        }
+        return c; // returns null if camera is unavailable
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_camera, container, false);
-        imageView = (ImageView) view.findViewById(R.id.recycleView);
-        imageButton = (ImageButton) view.findViewById(R.id.button);
         Bundle bundle = getArguments();
+
+        imageView = (ImageView) view.findViewById(R.id.imageView);
+        imageButton = (ImageButton) view.findViewById(R.id.button);
+        mCamera = getCameraInstance();
+        mCamera.setDisplayOrientation(90);
+        mPreview = new CameraPreview(getActivity().getApplicationContext(), mCamera);
+        FrameLayout preview = (FrameLayout) view.findViewById(R.id.camera_preview);
+        preview.addView(mPreview);
+
+        // Add a listener to the Capture button
+        imageButton.setOnClickListener(
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Calls onPictureTaken callback
+                    mCamera.takePicture(null, null, mPicture);
+                }
+            }
+        );
 
         return view;
     }
 
-    public void onRecycleButtonClick(View v) {
-        Log.i("Recycle", "Scanning for recycles");
-        dispatchTakePictureIntent();
-    }
+    private Camera.PictureCallback mPicture = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(final byte[] data, Camera camera) {
+            File pictureFile;
 
-    private void dispatchTakePictureIntent() {
-        try {
-            File tmp = makeTempImageFile();
-            takePicture(tmp);
-        } catch (IOException e) {
-            e.printStackTrace();
+            try {
+                pictureFile = makeTempImageFile();
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                fos.write(data);
+                fos.close();
+
+                Uri img = Uri.fromFile(getActivity().getApplicationContext().getFileStreamPath("recycle.jpg"));
+                setViewPicture(img);
+
+                (new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... params) {
+                        try {
+                            detectRecycle(data);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+                }).execute();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-    }
+    };
 
-    private void takePicture(File pic) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
-            int req = imageRequestId;
-            imageRequestId = (imageRequestId + 1) % 256;
-            imageUris[req] = FileProvider.getUriForFile(getActivity().getApplicationContext(), "me.recycle.fileprovider", pic);
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUris[req]);
-            startActivityForResult(takePictureIntent, req | 0x100);
+    private File makeTempImageFile() throws IOException {
+        File out = this.getActivity().getApplicationContext().getCacheDir();
+        File recycleFolder = new File(out, "recycles");
+        if (!recycleFolder.exists()) {
+            recycleFolder.mkdir();
         }
+        return File.createTempFile("recycle", ".jpg", recycleFolder);
     }
 
-    private byte[] fullyReadInputStream(InputStream in) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buf = new byte[4096];
-
-        int n;
-        while ((n = in.read(buf)) > 0) {
-            out.write(buf, 0, n);
-        }
-        return out.toByteArray();
+    private void setViewPicture(Uri uri) {
+        imageView.setImageURI(uri);
     }
 
-    private void detectRecycle(Uri recycleUri) throws IOException {
-        InputStream in = new BufferedInputStream(getActivity().getContentResolver().openInputStream(recycleUri));
-
-        byte[] inBytes = fullyReadInputStream(in);
-
-        in.close();
-
+    private void detectRecycle(byte[] inBytes) throws IOException {
         URL serverUrl = new URL("http://35.231.68.240/testwiener");
         HttpURLConnection conn = (HttpURLConnection) serverUrl.openConnection();
         conn.setRequestMethod("POST");
@@ -109,7 +152,6 @@ public class CameraFragment extends Fragment {
         conn.setDoInput(true);
         conn.setDoOutput(true);
         conn.connect();
-
 
         OutputStream servOut = new BufferedOutputStream(conn.getOutputStream());
         servOut.write(inBytes);
@@ -142,35 +184,4 @@ public class CameraFragment extends Fragment {
         });
     }
 
-    private File makeTempImageFile() throws IOException {
-        File out = this.getActivity().getApplicationContext().getCacheDir();
-        File recycleFolder = new File(out, "recycles");
-        if (!recycleFolder.exists()) {
-            recycleFolder.mkdir();
-        }
-        return File.createTempFile("recycle", ".jpg", recycleFolder);
-    }
-
-    private void setViewPicture(Uri uri) {imageView.setImageURI(uri);
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (((requestCode & 0x100) == 0x100) && resultCode == -1) {
-            final Uri pic = imageUris[requestCode & 0xFF];
-            setViewPicture(pic);
-            (new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    try {
-                        detectRecycle(pic);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }
-            }).execute();
-        } else if (requestCode == REQUEST_IMAGE_CAPTURE){
-            Log.e("Recycle", "ERROR: " + resultCode);
-        }
-    }
 }
