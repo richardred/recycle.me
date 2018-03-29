@@ -24,7 +24,7 @@
 * **Ben Geier** - *Google Maps API implementation/front-end work* - [bengeier](https://github.com/bengeier)
 * **Nishant Sinha** - *Front-end application work* - [Nishnha](https://github.com/Nishnha)
 * **Sachin Mahajan** - *Tried to SSH to the server* - [Vuggo](https://github.com/Vuggo)
-* **Edward Xia** - *Data collection* - [EdwardXia3](https://github.com/EdwardXia3)
+* **Edward Xia** - *Data collection and classification* - [EdwardXia3](https://github.com/EdwardXia3)
 
 ## License
 This project is licensed under the MIT License - see the [License](LICENSE) file for details
